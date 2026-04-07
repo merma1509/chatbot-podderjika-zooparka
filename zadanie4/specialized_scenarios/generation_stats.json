@@ -1,0 +1,18 @@
+{
+  "total_scenarios": 24,
+  "attack_types": [
+    "semantic_manipulation",
+    "context_boundary",
+    "code_injection",
+    "multilingual_attack",
+    "syntax_injection",
+    "information_extraction",
+    "behavior_corruption",
+    "role_persistence"
+  ],
+  "difficulty_levels": [
+    "medium",
+    "hard"
+  ],
+  "generation_time": "2026-04-07T17:20:59.141272"
+}

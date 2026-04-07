@@ -26,7 +26,7 @@ except ImportError:
 class LoRATrainer:
     """LoRA Adapter Training Pipeline"""
     
-    def __init__(self, model_name: str = "../.lmstudio/models/dolphinnlp/Llama-3-8B-Instruct-exl2-6bpw", 
+    def __init__(self, model_name: str = "C:/Users/aimem/.lmstudio/models/dolphinnlp/Llama-3-8B-Instruct-exl2-6bpw", 
                  dataset_path: str = "../zadanie3/data/lora_training_dataset.json",
                  output_dir: str = "./lora_adapter"):
         # Use local Dolphin model
@@ -107,7 +107,7 @@ class LoRATrainer:
             # Use LM Studio proxy instead of loading local model
             print("Using LM Studio proxy for training...")
             tokenizer = None  # Will be handled by LM Studio
-            model = None     # Will be handled by LM Studio
+            model = None      # Will be handled by LM Studio
         else:
             # Load local model (Dolphin)
             tokenizer = AutoTokenizer.from_pretrained(
