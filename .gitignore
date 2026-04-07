@@ -1,6 +1,5 @@
 venv/
-*.json
-*.csv
+venvs/
 __pycache__/
 *.pyc
 *.pyo

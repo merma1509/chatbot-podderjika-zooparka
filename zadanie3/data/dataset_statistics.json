@@ -1,0 +1,29 @@
+{
+  "total_samples": 50,
+  "attack_types": {
+    "input_corruption": 6,
+    "prompt_injection_social_engineering": 6,
+    "role_play_attack": 6,
+    "hallucination_induction": 6,
+    "retrieval_boundary_attack": 6,
+    "multi_intent_confusion": 6,
+    "prompt_injection": 7,
+    "policy_extraction": 7
+  },
+  "scenario_types": {
+    "subtle_manipulation": 10,
+    "role_exploitation": 13,
+    "information_extraction": 7,
+    "direct_attack": 1,
+    "boundary_testing": 7,
+    "context_confusion": 7,
+    "behavior_manipulation": 4,
+    "multi_intent": 1
+  },
+  "difficulty_levels": {
+    "hard": 24,
+    "medium": 22,
+    "easy": 4
+  },
+  "language_support": "Russian/English bilingual with UTF-8 encoding"
+}

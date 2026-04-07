@@ -20,7 +20,7 @@ python --version
 
 # Install dependencies
 Write-Host "Installing dependencies..." -ForegroundColor Yellow
-pip install --upgrade pip
+py -m pip install --upgrade pip
 pip install -r requirements.txt
 
 Write-Host ""

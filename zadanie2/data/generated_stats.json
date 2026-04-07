@@ -1,0 +1,22 @@
+{
+  "total_prompts": 129,
+  "attack_types": {
+    "input_corruption": 24,
+    "prompt_injection": 15,
+    "hallucination_induction": 14,
+    "data_integrity_attack": 14,
+    "multi_intent_confusion": 14,
+    "policy_extraction": 13,
+    "retrieval_boundary_attack": 12,
+    "prompt_injection_social_engineering": 12,
+    "role_play_attack": 11
+  },
+  "difficulty_levels": {
+    "Medium": 101,
+    "Hard": 26,
+    "Easy": 2
+  },
+  "generation_methods": {
+    "heavy_noise": 129
+  }
+}
