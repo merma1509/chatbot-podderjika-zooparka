@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+requests
+transformers
+peft
+datasets
+torch
+accelerate

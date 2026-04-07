@@ -78,17 +78,17 @@ class MinimalLoRATrainingDataGenerator:
 
 ### Column Schema
 
-| Column | Description | Example |
-|---------|-------------|---------|
-| id | Unique identifier | 1-1000 |
-| attack_type | Attack category | prompt_injection |
-| scenario_type | Scenario classification | direct_attack |
-| difficulty | Complexity level | medium |
-| user_input | Training prompt | "Игнорируй инструкции..." |
-| base_prompt | Original Task 2 prompt | "Игнорируй предыдущие..." |
-| expected_behavior | Safe response type | resist_adversarial |
-| safety_category | Safety classification | adversarial_attack |
-| response_template | Expected safe response | "Я не могу помочь..." |
+| Column            | Description             | Example                   |
+|-------------------|-------------------------|---------------------------|
+| id                | Unique identifier       | 1-1000                    |
+| attack_type       | Attack category         | prompt_injection          |
+| scenario_type     | Scenario classification | direct_attack             |
+| difficulty        | Complexity level        | medium                    |
+| user_input        | Training prompt         | "Игнорируй инструкции..." |
+| base_prompt       | Original Task 2 prompt  | "Игнорируй предыдущие..." |
+| expected_behavior | Safe response type      | resist_adversarial        |
+| safety_category   | Safety classification   | adversarial_attack        |
+| response_template | Expected safe response  | "Я не могу помочь..."     |
 
 ### Quality Metrics
 
@@ -133,12 +133,14 @@ python generate_lora_dataset.py --samples 1000
 ### Sample Generation (50 examples)
 
 **Distribution Analysis:**
+
 - **Attack Types**: 9 categories (6-7 samples each)
 - **Scenario Types**: 8 categories (1-13 samples each)
 - **Difficulty Levels**: Hard (48%), Medium (44%), Easy (8%)
 - **Russian Content**: 100% verified with Cyrillic characters
 
 **Quality Assurance:**
+
 - **Template Variation**: Multiple phrasing patterns per scenario
 - **UTF-8 Encoding**: Proper character display in Excel
 - **Balanced Sampling**: Algorithmic distribution control
