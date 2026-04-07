@@ -1,15 +1,21 @@
+# Core dependencies for all tasks
 pandas>=1.5.0
 numpy>=1.21.0
 sentence-transformers>=2.2.0
 nltk>=3.7
 fuzzywuzzy>=0.18.0
 python-Levenshtein>=0.12.0
+openpyxl>=3.0.0
+scikit-learn>=1.0.0
 
-# Опционально для LLM
+# LLM support (Task 2)
 openai>=1.0.0
 transformers>=4.21.0
 torch>=2.0.0
 
-# Для разработки
+# Development tools
 pytest>=7.0.0
 black>=22.0.0
+
+# Language support
+charset-normalizer>=3.0.0
