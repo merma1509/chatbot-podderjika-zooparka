@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Noise Injection Module
-Инъекция шума и искажений текста
-"""
+"""Noise Injection Module
+Инъекция шума и искажений текста"""
 
 import random
 import string

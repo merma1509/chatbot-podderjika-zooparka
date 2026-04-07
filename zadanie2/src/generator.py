@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Template Expansion Module
-Генерация вариаций через шаблоны
-"""
+"""Template Expansion Module
+Генерация вариаций через шаблоны"""
 
 import random
 

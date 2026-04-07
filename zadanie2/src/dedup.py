@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Semantic Deduplication Module
-Удаление семантически похожих промптов
-"""
+"""Semantic Deduplication Module
+Удаление семантически похожих промптов"""
 
 from sentence_transformers import SentenceTransformer, util
 import numpy as np

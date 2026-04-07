@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Main Pipeline for Adversarial Prompt Generation
-Задание 2: Генерация 200 запросов на основе 10 базовых
-"""
+"""Main Pipeline for Adversarial Prompt Generation
+Задание 2: Генерация 200 запросов на основе 10 базовых"""
 
 import json
 import pandas as pd
@@ -13,6 +11,10 @@ from pathlib import Path
 # Импорт модулей
 from src import apply_templates, mixed_noise, heavy_noise, quick_deduplicate, DifficultyClassifier, create_paraphraser
 
+# В начале main.py
+import os
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
 # Конфигурация
 TOTAL_PER_PROMPT = 20
 TARGET_COUNT = 200
@@ -22,15 +24,19 @@ random.seed(SEED)
 
 class PromptGenerator:
     def __init__(self, use_llm=False, api_type="mock"):
-        """
-        Инициализация генератора
+        """Инициализация генератора
         
         Args:
             use_llm: использовать LLM для перефразирования
-            api_type: тип API ("openai", "local", "mock")
+            api_type: тип API ("openai", "local", "mock", "ollama", "lmstudio")
         """
         self.use_llm = use_llm
-        self.paraphraser = create_paraphraser(api_type) if use_llm else None
+        self.api_type = api_type
+        self.paraphraser = None
+        
+        if use_llm:
+            self.paraphraser = create_paraphraser(api_type)
+        
         self.classifier = DifficultyClassifier()
         
         # Загрузка базовых промптов
@@ -38,8 +44,7 @@ class PromptGenerator:
             self.base_prompts = json.load(f)
     
     def generate_variations(self, base_prompt):
-        """
-        Генерирует вариации для одного базового промпта
+        """Генерирует вариации для одного базового промпта
         
         Args:
             base_prompt: dict с полями id, text, attack_type
@@ -54,16 +59,22 @@ class PromptGenerator:
         variations.extend(template_vars)
         
         # 2. LLM paraphrasing (5 вариаций) - если включен
+        llm_vars = []
         if self.use_llm and self.paraphraser:
             try:
                 llm_vars = self.paraphraser.paraphrase(base_prompt["text"], n=5)
-                variations.extend(llm_vars)
-                print(f"✓ LLM перефразирован: {base_prompt['text'][:50]}...")
+                if llm_vars:  # Проверяем что получили результаты
+                    variations.extend(llm_vars)
+                    print(f"LLM перефразирован: {base_prompt['text'][:50]}...")
+                else:
+                    print(f"LLM не смог перефразировать, пропускаем: {base_prompt['text'][:50]}...")
             except Exception as e:
-                print(f"✗ Ошибка LLM: {e}")
-                # Fallback на template expansion
-                fallback_vars = apply_templates(base_prompt["text"], n=5)
-                variations.extend(fallback_vars)
+                print(f"Ошибка LLM: {e}")
+                # НЕ используем fallback - просто пропускаем LLM шаг
+        else:
+            # Если LLM не включен, добавляем больше template expansion
+            template_vars = apply_templates(base_prompt["text"], n=5)
+            variations.extend(template_vars)
         
         # 3. Noise injection (5 вариаций)
         noise_vars = []
@@ -83,13 +94,13 @@ class PromptGenerator:
         
         return variations
     
-    def classify_variations(self, variations, base_prompt):
-        """
-        Классифицирует вариации по сложности
+    def classify_variations(self, variations, base_prompt, llm_vars=None):
+        """Классифицирует вариации по сложности
         
         Args:
             variations: список вариаций
             base_prompt: базовый промпт
+            llm_vars: список LLM вариаций (для правильной классификации)
         
         Returns:
             list: список словарей с классификацией
@@ -100,8 +111,8 @@ class PromptGenerator:
             difficulty = self.classifier.classify(var)
             
             # Определение метода генерации
-            method = "paraphrase"
-            if self.use_llm and var in variations[:5]:  # Первые 5 могут быть LLM
+            method = "template"
+            if llm_vars and var in llm_vars:  # Если это LLM результат
                 method = "llm_paraphrase"
             elif any(char.isdigit() for char in var) or " " in " ".join(list(var)):
                 method = "heavy_noise"
@@ -117,20 +128,19 @@ class PromptGenerator:
         return classified
     
     def generate_dataset(self):
-        """
-        Генерирует полный датасет
+        """Генерирует полный датасет
         
         Returns:
             pd.DataFrame: датафрейм с результатами
         """
         all_rows = []
         
-        print("🚀 Генерация adversarial промптов...")
-        print(f"📊 Целевое количество: {TARGET_COUNT}")
-        print(f"📊 Использование LLM: {self.use_llm}")
+        print("Генерация adversarial промптов...")
+        print(f"Целевое количество: {TARGET_COUNT}")
+        print(f"Использование LLM: {self.use_llm}")
         
         for i, base_prompt in enumerate(self.base_prompts, 1):
-            print(f"\n📝 Обработка промпта {i}/{len(self.base_prompts)}: {base_prompt['attack_type']}")
+            print(f"\nОбработка промпта {i}/{len(self.base_prompts)}: {base_prompt['attack_type']}")
             
             # Генерация вариаций
             variations = self.generate_variations(base_prompt)
@@ -152,7 +162,7 @@ class PromptGenerator:
                     "generation_method": var_data["generation_method"]
                 })
             
-            print(f"✓ Сгенерировано {len(classified[:TOTAL_PER_PROMPT])} вариаций")
+            print(f"Сгенерировано {len(classified[:TOTAL_PER_PROMPT])} вариаций")
         
         # Обрезка до целевого количества
         df = pd.DataFrame(all_rows[:TARGET_COUNT])
@@ -160,8 +170,7 @@ class PromptGenerator:
         return df
     
     def save_results(self, df, output_file="data/generated.csv"):
-        """
-        Сохраняет результаты
+        """Сохраняет результаты
         
         Args:
             df: датафрейм с результатами
@@ -181,17 +190,16 @@ class PromptGenerator:
         with open(stats_file, 'w', encoding='utf-8') as f:
             json.dump(stats, f, ensure_ascii=False, indent=2)
         
-        print(f"\n✅ Генерация завершена!")
-        print(f"📊 Всего сгенерировано: {len(df)} промптов")
-        print(f"💾 Результаты сохранены:")
+        print(f"\nГенерация завершена!")
+        print(f"Всего сгенерировано: {len(df)} промптов")
+        print(f"Результаты сохранены:")
         print(f"   - {output_file}")
         print(f"   - {stats_file}")
         
         return stats
     
     def generate_stats(self, df):
-        """
-        Генерирует статистику по датасету
+        """Генерирует статистику по датасету
         
         Args:
             df: датафрейм с промптами
@@ -206,15 +214,15 @@ class PromptGenerator:
             "generation_methods": df["generation_method"].value_counts().to_dict()
         }
         
-        print("\n📈 Распределение по типам атак:")
+        print("\nРаспределение по типам атак:")
         for attack_type, count in stats["attack_types"].items():
             print(f"   {attack_type}: {count}")
         
-        print("\n📈 Распределение по сложности:")
+        print("\nРаспределение по сложности:")
         for difficulty, count in stats["difficulty_levels"].items():
             print(f"   {difficulty}: {count}")
         
-        print("\n📈 Распределение по методам генерации:")
+        print("\nРаспределение по методам генерации:")
         for method, count in stats["generation_methods"].items():
             print(f"   {method}: {count}")
         
@@ -227,7 +235,7 @@ def main():
     parser = argparse.ArgumentParser(description="Генерация adversarial промптов")
     parser.add_argument("--use-llm", action="store_true", 
                       help="Использовать LLM для перефразирования")
-    parser.add_argument("--api-type", choices=["openai", "local", "mock"], 
+    parser.add_argument("--api-type", choices=["openai", "local", "mock", "ollama", "lmstudio"], 
                       default="mock", help="Тип API для LLM")
     parser.add_argument("--target", type=int, default=TARGET_COUNT,
                       help=f"Целевое количество промптов (по умолчанию {TARGET_COUNT})")
@@ -244,7 +252,7 @@ def main():
     stats = generator.save_results(df)
     
     # Показ первых примеров
-    print("\n🎯 Первые 10 примеров:")
+    print("\nПервые 10 примеров:")
     for i, row in df.head(10).iterrows():
         print(f"{i+1}. [{row['attack_type']}] {row['prompt']}")
 

@@ -4,3 +4,12 @@ sentence-transformers>=2.2.0
 nltk>=3.7
 fuzzywuzzy>=0.18.0
 python-Levenshtein>=0.12.0
+
+# Опционально для LLM
+openai>=1.0.0
+transformers>=4.21.0
+torch>=2.0.0
+
+# Для разработки
+pytest>=7.0.0
+black>=22.0.0
